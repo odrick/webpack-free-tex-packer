@@ -1,1 +1,1 @@
-console.log("lalala");
+console.log("Webpack free texture packer example");
