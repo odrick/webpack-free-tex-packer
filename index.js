@@ -2,6 +2,8 @@ const fs = require('fs');
 const pathModule = require('path');
 const texturePacker = require("free-tex-packer-core");
 
+const SUPPORTED_EXT = ["png", "jpg", "jpeg"];
+
 function isFolder(path) {
     if(isExists(path)) {
         return fs.statSync(path).isDirectory();
@@ -90,7 +92,8 @@ class WebpackFreeTexPacker {
                     if(isExists(srcPath)) {
                         let list = getFolderFilesList(path, (name ? name + '/' : ''));
                         for(let file of list) {
-                            files[file.name] = file.path;
+                            let ext = getExtFromPath(file.path);
+							if(SUPPORTED_EXT.indexOf(ext) >= 0) files[file.name] = file.path;
                         }
                     }
 
