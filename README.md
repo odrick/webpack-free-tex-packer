@@ -13,7 +13,7 @@ $ npm install webpack-free-tex-packer
 
 ```js
 const path = require('path');
-const WebpackFreeTexPacker = require('../webpack-free-tex-packer');
+const WebpackFreeTexPacker = require('webpack-free-tex-packer');
 
 module.exports = {
     entry: [
@@ -41,7 +41,7 @@ Use packer options object, multiple sources, custom output folder
 
 ```js
 const path = require('path');
-const WebpackFreeTexPacker = require('../webpack-free-tex-packer');
+const WebpackFreeTexPacker = require('webpack-free-tex-packer');
 
 let sources = [];
 sources.push(path.resolve(__dirname, 'atlases/10.png'));
