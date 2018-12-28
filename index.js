@@ -64,7 +64,7 @@ function getSubFoldersList(dir, list=[]) {
 }
 
 class WebpackFreeTexPacker {
-	constructor(src, dest, options=null) {
+	constructor(src, dest='.', options=null) {
 		if(!Array.isArray(src)) src = [src];
 		
 		this.src = src;
