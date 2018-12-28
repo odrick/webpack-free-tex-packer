@@ -1,6 +1,7 @@
 # webpack-free-tex-packer
-> Webpack Free texture packer plugin
 
+> [![Stats](https://nodei.co/npm/webpack-free-tex-packer.png?downloads=true&stars=true)](https://www.npmjs.com/package/webpack-free-tex-packer) \
+> Webpack Free texture packer plugin \
 > Based on https://github.com/odrick/free-tex-packer
 
 # Install
