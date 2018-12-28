@@ -1,8 +1,9 @@
 const fs = require('fs');
 const pathModule = require('path');
-const texturePacker = require("free-tex-packer-core");
+const chokidar = require('chokidar');
+const texturePacker = require('free-tex-packer-core');
 
-const SUPPORTED_EXT = ["png", "jpg", "jpeg"];
+const SUPPORTED_EXT = ['png', 'jpg', 'jpeg'];
 
 function isFolder(path) {
     if(isExists(path)) {
@@ -11,7 +12,7 @@ function isFolder(path) {
     else {
         path = fixPath(path);
         let name = getNameFromPath(path);
-        let parts = name.split(".");
+        let parts = name.split('.');
         return parts.length === 1;
     }
 }
@@ -21,27 +22,27 @@ function isExists(path) {
 }
 
 function fixPath(path) {
-    return path.trim().split("\\").join("/");
+    return path.trim().split('\\').join('/');
 }
 
 function getNameFromPath(path) {
-    return path.trim().split("/").pop();
+    return path.trim().split('/').pop();
 }
 
 function getExtFromPath(path) {
-    return path.trim().split(".").pop().toLowerCase();
+    return path.trim().split('.').pop().toLowerCase();
 }
 
-function getFolderFilesList(dir, base = "", list = []) {
+function getFolderFilesList(dir, base = '', list = []) {
     let files = fs.readdirSync(dir);
     for(let file of files) {
         let path = pathModule.resolve(dir, file);
         if(isFolder(path) && path.toUpperCase().indexOf('__MACOSX') < 0) {
-            list = getFolderFilesList(path, base + file + "/", list);
+            list = getFolderFilesList(path, base + file + '/', list);
         }
         else {
             list.push({
-                name: (base ? base : "") + file,
+                name: (base ? base : '') + file,
                 path: path
             });
         }
@@ -63,11 +64,6 @@ function getSubFoldersList(dir, list = []) {
     return list;
 }
 
-function addDependencie(dependencies, path) {
-    if(Array.isArray(dependencies)) dependencies.push(path);
-    else dependencies.add(path);
-}
-
 class WebpackFreeTexPacker {
     constructor(src, dest = '.', options = null) {
         if(!Array.isArray(src)) src = [src];
@@ -75,8 +71,36 @@ class WebpackFreeTexPacker {
         this.src = src;
         this.dest = dest;
         this.options = options;
+        
+        this.changed = true;
+        
+        this.watcher = null;
+        this.watchStarted = false;
+
+        this.onFsChanges = this.onFsChanges.bind(this);
     }
 
+    addDependencie(dependencies, path) {
+        if(Array.isArray(dependencies)) dependencies.push(path);
+        else dependencies.add(path);
+        
+        this.addToWatch(path);
+    }
+    
+    addToWatch(path) {
+        if(!this.watcher) {
+            this.watcher = chokidar.watch(path, {ignoreInitial: true});
+            this.watcher.on('all', this.onFsChanges);
+        }
+        else {
+            this.watcher.add(path);
+        }
+    }
+
+    onFsChanges() {
+        this.changed = true;
+    }
+    
     apply(compiler) {
         compiler.hooks.emit.tapAsync('WebpackFreeTexPacker', (compilation, callback) => {
             let files = {};
@@ -101,11 +125,11 @@ class WebpackFreeTexPacker {
                         }
                     }
 
-                    addDependencie(compilation.contextDependencies, srcPath);
+                    this.addDependencie(compilation.contextDependencies, srcPath);
 
                     let subFolders = getSubFoldersList(srcPath);
                     for(let folder of subFolders) {
-                        addDependencie(compilation.contextDependencies, folder);
+                        this.addDependencie(compilation.contextDependencies, folder);
                     }
                 }
                 else {
@@ -113,8 +137,13 @@ class WebpackFreeTexPacker {
                         files[getNameFromPath(path)] = path;
                     }
 
-                    addDependencie(compilation.fileDependencies, srcPath);
+                    this.addDependencie(compilation.fileDependencies, srcPath);
                 }
+            }
+
+            if(this.watchStarted && !this.changed) {
+                callback();
+                return;
             }
 
             let images = [];
@@ -138,6 +167,9 @@ class WebpackFreeTexPacker {
                 }
                 callback();
             });
+
+            this.changed = false;
+            this.watchStarted = true;
         });
     }
 }

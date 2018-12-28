@@ -1,6 +1,6 @@
 {
     "name": "webpack-free-tex-packer",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "description": "Webpack Free texture packer plugin",
     "main": "index.js",
     "scripts": {},
@@ -28,6 +28,7 @@
     },
     "homepage": "https://github.com/odrick/webpack-free-tex-packer#readme",
     "dependencies": {
+        "chokidar": "^2.0.4",
         "free-tex-packer-core": "*"
     }
 }

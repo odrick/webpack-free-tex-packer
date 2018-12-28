@@ -112,6 +112,7 @@ https://github.com/odrick/webpack-free-tex-packer/tree/master/example
 # Used libs
 
 * **Free texture packer core** - https://github.com/odrick/free-tex-packer-core
+* **Chokidar** - https://github.com/paulmillr/chokidar
 
 ---
 License: MIT
