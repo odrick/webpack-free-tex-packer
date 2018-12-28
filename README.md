@@ -88,7 +88,7 @@ http://localhost:8080/assets/atlas.json
 
 | prop             | type            | description                                                                                      |
 | ---              | ---             | ---                                                                                              |
-| sources          | String or Array | Images or folders path. Folder path, ended by ('.', '*' or '*.*') includes images to atlas root. |
+| sources          | String or Array | Images or folders path. Folder path, ended by ('.', '\*' or '\*.\*') includes images to atlas root. |
 | output           | String          | Output folder                                                                                    |
 | packOptions      | Object          | Pack options                                                                                     |
 
