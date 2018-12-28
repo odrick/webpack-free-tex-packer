@@ -1,0 +1,23 @@
+{
+  "name": "webpack-free-tex-packer-test",
+  "version": "0.0.1",
+  "description": "webpack-free-tex-packer test",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --host 0.0.0.0",
+    "build": "webpack --build"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.2.3",
+    "babel-loader": "^8.0.4",
+    "copy-webpack-plugin": "^4.6.0",
+    "optimist": "^0.6.1",
+    "webpack": "^4.28.2",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.14",
+	"webpack-free-tex-packer": "*"
+  }
+}
