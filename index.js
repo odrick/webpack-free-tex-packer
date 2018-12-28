@@ -32,11 +32,11 @@ function getExtFromPath(path) {
     return path.trim().split(".").pop().toLowerCase();
 }
 
-function getFolderFilesList(dir, base="", list=[]) {
+function getFolderFilesList(dir, base = "", list = []) {
     let files = fs.readdirSync(dir);
     for(let file of files) {
-        let path = pathModule.resolve(dir,  file);
-        if (isFolder(path) && path.toUpperCase().indexOf('__MACOSX') < 0) {
+        let path = pathModule.resolve(dir, file);
+        if(isFolder(path) && path.toUpperCase().indexOf('__MACOSX') < 0) {
             list = getFolderFilesList(path, base + file + "/", list);
         }
         else {
@@ -50,11 +50,11 @@ function getFolderFilesList(dir, base="", list=[]) {
     return list;
 }
 
-function getSubFoldersList(dir, list=[]) {
+function getSubFoldersList(dir, list = []) {
     let files = fs.readdirSync(dir);
     for(let file of files) {
-        let path = pathModule.resolve(dir,  file);
-        if (isFolder(path) && path.toUpperCase().indexOf('__MACOSX') < 0) {
+        let path = pathModule.resolve(dir, file);
+        if(isFolder(path) && path.toUpperCase().indexOf('__MACOSX') < 0) {
             list.push(path);
             list = getSubFoldersList(path, list);
         }
@@ -63,26 +63,30 @@ function getSubFoldersList(dir, list=[]) {
     return list;
 }
 
+function addDependencie(dependencies, path) {
+    if(Array.isArray(dependencies)) dependencies.push(path);
+    else dependencies.add(path);
+}
+
 class WebpackFreeTexPacker {
-	constructor(src, dest='.', options=null) {
-		if(!Array.isArray(src)) src = [src];
-		
-		this.src = src;
-		this.dest = dest;
-		this.options = options;
-	}
-	
-	apply(compiler) {
-		compiler.hooks.emit.tapAsync('WebpackFreeTexPacker', (compilation, callback) => {
-			
-		    let files = {};
-		    
-		    for(let srcPath of this.src) {
+    constructor(src, dest = '.', options = null) {
+        if(!Array.isArray(src)) src = [src];
+
+        this.src = src;
+        this.dest = dest;
+        this.options = options;
+    }
+
+    apply(compiler) {
+        compiler.hooks.emit.tapAsync('WebpackFreeTexPacker', (compilation, callback) => {
+            let files = {};
+
+            for(let srcPath of this.src) {
                 let path = fixPath(srcPath);
-                
+
                 let name = getNameFromPath(path);
-                
-                if(!name || name === '.' || name === '*' || name === '*.*') {
+
+                if(name === '.' || name === '*' || name === '*.*') {
                     srcPath = srcPath.substr(0, srcPath.length - name.length - 1);
                     path = fixPath(srcPath);
                     name = '';
@@ -93,15 +97,15 @@ class WebpackFreeTexPacker {
                         let list = getFolderFilesList(path, (name ? name + '/' : ''));
                         for(let file of list) {
                             let ext = getExtFromPath(file.path);
-							if(SUPPORTED_EXT.indexOf(ext) >= 0) files[file.name] = file.path;
+                            if(SUPPORTED_EXT.indexOf(ext) >= 0) files[file.name] = file.path;
                         }
                     }
 
-                    compilation.contextDependencies.add(srcPath);
-                    
+                    addDependencie(compilation.contextDependencies, srcPath);
+
                     let subFolders = getSubFoldersList(srcPath);
                     for(let folder of subFolders) {
-                        compilation.contextDependencies.add(folder);
+                        addDependencie(compilation.contextDependencies, folder);
                     }
                 }
                 else {
@@ -109,13 +113,13 @@ class WebpackFreeTexPacker {
                         files[getNameFromPath(path)] = path;
                     }
 
-                    compilation.fileDependencies.add(srcPath);
+                    addDependencie(compilation.fileDependencies, srcPath);
                 }
             }
-    		    
+
             let images = [];
             let names = Object.keys(files);
-		    for(let name of names) {
+            for(let name of names) {
                 images.push({path: name, contents: fs.readFileSync(files[name])});
             }
 
@@ -134,8 +138,8 @@ class WebpackFreeTexPacker {
                 }
                 callback();
             });
-		});
-	}
+        });
+    }
 }
 
 module.exports = WebpackFreeTexPacker;

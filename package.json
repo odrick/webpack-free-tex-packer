@@ -1,34 +1,33 @@
 {
-  "name": "webpack-free-tex-packer",
-  "version": "0.1.4",
-  "description": "Webpack Free texture packer plugin",
-  "main": "index.js",
-  "scripts": {
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/odrick/webpack-free-tex-packer.git"
-  },
-  "keywords": [
-    "texture",
-    "packer",
-    "webpack",
-    "webpackplugin",
-    "texturepacker",
-    "texture-packer",
-    "sprites",
-    "spritesheet",
-    "export",
-    "sprite",
-    "2d"
-  ],
-  "author": "Alexander Norinchak",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/odrick/webpack-free-tex-packer/issues"
-  },
-  "homepage": "https://github.com/odrick/webpack-free-tex-packer#readme",
-  "dependencies": {
-    "free-tex-packer-core": "*"
-  }
+    "name": "webpack-free-tex-packer",
+    "version": "0.1.5",
+    "description": "Webpack Free texture packer plugin",
+    "main": "index.js",
+    "scripts": {},
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/odrick/webpack-free-tex-packer.git"
+    },
+    "keywords": [
+        "texture",
+        "packer",
+        "webpack",
+        "webpackplugin",
+        "texturepacker",
+        "texture-packer",
+        "sprites",
+        "spritesheet",
+        "export",
+        "sprite",
+        "2d"
+    ],
+    "author": "Alexander Norinchak",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/odrick/webpack-free-tex-packer/issues"
+    },
+    "homepage": "https://github.com/odrick/webpack-free-tex-packer#readme",
+    "dependencies": {
+        "free-tex-packer-core": "*"
+    }
 }
