@@ -1,10 +1,9 @@
 {
   "name": "webpack-free-tex-packer",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Webpack Free texture packer plugin",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
