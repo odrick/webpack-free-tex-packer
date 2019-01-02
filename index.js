@@ -2,6 +2,7 @@ const fs = require('fs');
 const pathModule = require('path');
 const chokidar = require('chokidar');
 const texturePacker = require('free-tex-packer-core');
+const appInfo = require('./package.json');
 
 const SUPPORTED_EXT = ['png', 'jpg', 'jpeg'];
 
@@ -65,12 +66,14 @@ function getSubFoldersList(dir, list = []) {
 }
 
 class WebpackFreeTexPacker {
-    constructor(src, dest = '.', options = null) {
+    constructor(src, dest = '.', options = {}) {
         if(!Array.isArray(src)) src = [src];
 
         this.src = src;
         this.dest = dest;
+        
         this.options = options;
+        this.options.appInfo = appInfo;
         
         this.changed = true;
         
