@@ -71,12 +71,12 @@ class WebpackFreeTexPacker {
 
         this.src = src;
         this.dest = dest;
-        
+
         this.options = options;
         this.options.appInfo = appInfo;
-        
+
         this.changed = true;
-        
+
         this.watcher = null;
         this.watchStarted = false;
 
@@ -86,10 +86,10 @@ class WebpackFreeTexPacker {
     addDependencie(dependencies, path) {
         if(Array.isArray(dependencies)) dependencies.push(path);
         else dependencies.add(path);
-        
+
         this.addToWatch(path);
     }
-    
+
     addToWatch(path) {
         if(!this.watcher) {
             this.watcher = chokidar.watch(path, {ignoreInitial: true});
@@ -103,77 +103,85 @@ class WebpackFreeTexPacker {
     onFsChanges() {
         this.changed = true;
     }
-    
+
     apply(compiler) {
-        compiler.hooks.emit.tapAsync('WebpackFreeTexPacker', (compilation, callback) => {
-            let files = {};
+        if (compiler.hooks && compiler.hooks.emit) {
+            // Webpack 4
+            compiler.hooks.emit.tapAsync('WebpackFreeTexPacker', this.emitHookHandler.bind(this));
+        } else {
+            // Webpack 3
+            compiler.plugin('emit', this.emitHookHandler.bind(this))
+        }
+    }
 
-            for(let srcPath of this.src) {
-                let path = fixPath(srcPath);
+    emitHookHandler(compilation, callback) {
+        let files = {};
 
-                let name = getNameFromPath(path);
+        for(let srcPath of this.src) {
+            let path = fixPath(srcPath);
 
-                if(name === '.' || name === '*' || name === '*.*') {
-                    srcPath = srcPath.substr(0, srcPath.length - name.length - 1);
-                    path = fixPath(srcPath);
-                    name = '';
+            let name = getNameFromPath(path);
+
+            if(name === '.' || name === '*' || name === '*.*') {
+                srcPath = srcPath.substr(0, srcPath.length - name.length - 1);
+                path = fixPath(srcPath);
+                name = '';
+            }
+
+            if(isFolder(path)) {
+                if(isExists(srcPath)) {
+                    let list = getFolderFilesList(path, (name ? name + '/' : ''));
+                    for(let file of list) {
+                        let ext = getExtFromPath(file.path);
+                        if(SUPPORTED_EXT.indexOf(ext) >= 0) files[file.name] = file.path;
+                    }
                 }
 
-                if(isFolder(path)) {
-                    if(isExists(srcPath)) {
-                        let list = getFolderFilesList(path, (name ? name + '/' : ''));
-                        for(let file of list) {
-                            let ext = getExtFromPath(file.path);
-                            if(SUPPORTED_EXT.indexOf(ext) >= 0) files[file.name] = file.path;
+                this.addDependencie(compilation.contextDependencies, srcPath);
+
+                let subFolders = getSubFoldersList(srcPath);
+                for(let folder of subFolders) {
+                    this.addDependencie(compilation.contextDependencies, folder);
+                }
+            }
+            else {
+                if(isExists(srcPath)) {
+                    files[getNameFromPath(path)] = path;
+                }
+
+                this.addDependencie(compilation.fileDependencies, srcPath);
+            }
+        }
+
+        if(this.watchStarted && !this.changed) {
+            callback();
+            return;
+        }
+
+        let images = [];
+        let names = Object.keys(files);
+        for(let name of names) {
+            images.push({path: name, contents: fs.readFileSync(files[name])});
+        }
+
+        texturePacker(images, this.options, (files) => {
+            for(let item of files) {
+                (function(item, dest) {
+                    compilation.assets[dest + '/' + item.name] = {
+                        source: function() {
+                            return item.buffer;
+                        },
+                        size: function() {
+                            return item.buffer.length;
                         }
-                    }
-
-                    this.addDependencie(compilation.contextDependencies, srcPath);
-
-                    let subFolders = getSubFoldersList(srcPath);
-                    for(let folder of subFolders) {
-                        this.addDependencie(compilation.contextDependencies, folder);
-                    }
-                }
-                else {
-                    if(isExists(srcPath)) {
-                        files[getNameFromPath(path)] = path;
-                    }
-
-                    this.addDependencie(compilation.fileDependencies, srcPath);
-                }
+                    };
+                })(item, this.dest);
             }
-
-            if(this.watchStarted && !this.changed) {
-                callback();
-                return;
-            }
-
-            let images = [];
-            let names = Object.keys(files);
-            for(let name of names) {
-                images.push({path: name, contents: fs.readFileSync(files[name])});
-            }
-
-            texturePacker(images, this.options, (files) => {
-                for(let item of files) {
-                    (function(item, dest) {
-                        compilation.assets[dest + '/' + item.name] = {
-                            source: function() {
-                                return item.buffer;
-                            },
-                            size: function() {
-                                return item.buffer.length;
-                            }
-                        };
-                    })(item, this.dest);
-                }
-                callback();
-            });
-
-            this.changed = false;
-            this.watchStarted = true;
+            callback();
         });
+
+        this.changed = false;
+        this.watchStarted = true;
     }
 }
 
