@@ -117,7 +117,7 @@ class WebpackFreeTexPacker {
     emitHookHandler(compilation, callback) {
         let files = {};
 
-        if(compilation.options.mode === 'development') {
+        if(!compilation.options || compilation.options.mode === 'development') {
             for(let srcPath of this.src) {
                 let path = fixPath(srcPath);
 
