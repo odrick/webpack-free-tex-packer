@@ -1,6 +1,6 @@
 {
     "name": "webpack-free-tex-packer",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "description": "Webpack Free texture packer plugin",
     "url": "https://github.com/odrick/webpack-free-tex-packer",
     "main": "index.js",
