@@ -117,6 +117,8 @@ class WebpackFreeTexPacker {
     emitHookHandler(compilation, callback) {
         let files = {};
 
+        let devMode = (!compilation.options || compilation.options.mode === 'development');
+
         for (let srcPath of this.src) {
             let path = fixPath(srcPath);
 
@@ -137,11 +139,11 @@ class WebpackFreeTexPacker {
                     }
                 }
 
-                this.addDependencie(compilation.contextDependencies, srcPath);
+                if (devMode) this.addDependencie(compilation.contextDependencies, srcPath);
 
                 let subFolders = getSubFoldersList(srcPath);
                 for (let folder of subFolders) {
-                    this.addDependencie(compilation.contextDependencies, folder);
+                    if (devMode) this.addDependencie(compilation.contextDependencies, folder);
                 }
             }
             else {
@@ -149,7 +151,7 @@ class WebpackFreeTexPacker {
                     files[getNameFromPath(path)] = path;
                 }
 
-                this.addDependencie(compilation.fileDependencies, srcPath);
+                if (devMode) this.addDependencie(compilation.fileDependencies, srcPath);
             }
         }
 
